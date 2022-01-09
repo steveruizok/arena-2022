@@ -1,6 +1,5 @@
 import { action, computed, makeObservable, observable } from 'mobx'
 import { Bounds, Bounds3d, Verts } from '../../types'
-import { uniqueId } from '../../utils'
 import { isoToScreen, screenToIso } from '../../utils/iso'
 import { Vec3d } from '../../utils/vec3d'
 
@@ -16,16 +15,19 @@ export interface BlockProps {
 export class Block {
   @observable props: BlockProps
 
+  static defaultProps: BlockProps = {
+    id: 'block',
+    type: 'block',
+    point: [0, 0, 0],
+    size: [1, 1, 1],
+    facing: 'north',
+    color: '#26aff3',
+  }
+
   constructor(options = {} as Partial<BlockProps>) {
-    const {
-      id = uniqueId(),
-      type = 'block',
-      point = [0, 0, 0],
-      size = [1, 1, 1],
-      facing = 'north',
-      color = '#26aff3',
-    } = options
-    this.props = { id, type, point, size, facing, color }
+    // @ts-ignore
+    const { defaultProps } = this.constructor
+    this.props = { ...defaultProps, ...options }
     this.animatingToPoint = [...this.props.point]
     makeObservable(this)
   }
@@ -106,6 +108,7 @@ export class Block {
 
   @action update(change: Partial<BlockProps>) {
     Object.assign(this.props, change)
+    this.animatingToPoint = [...this.props.point]
   }
 
   animationFrame: any = 0

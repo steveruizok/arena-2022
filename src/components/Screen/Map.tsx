@@ -16,11 +16,8 @@ export const Map = React.memo(function Map() {
         <Observer>
           {() => (
             <g transform={`translate(${SIZE * 10.5}, ${SIZE * 5})`}>
-              {Object.values(app.state.tiles).map((tile) => (
-                <tile.Component key={tile.id} />
-              ))}
-              {Object.values(app.state.blocks).map((block) => (
-                <block.Component key={block.id} />
+              {app.map.map((item) => (
+                <item.Component key={item.id} />
               ))}
             </g>
           )}

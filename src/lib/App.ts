@@ -1,11 +1,11 @@
 import Vec from '@tldraw/vec'
-import { makeObservable, observable } from 'mobx'
+import { computed, makeObservable, observable } from 'mobx'
 import { EventHandlers, EventHandlerTypes, GameState } from '../types'
 import { Block } from './Block'
-import { Stone } from './blocks/Stone'
 import { Inputs } from './Inputs'
 import { RootState } from './statechart/RootState'
 import { Viewport } from './Viewport'
+import { Level } from './Level'
 
 export class App extends RootState {
   constructor() {
@@ -18,28 +18,15 @@ export class App extends RootState {
   inputs = new Inputs(this)
 
   @observable state: GameState = {
-    blocks: Object.fromEntries(
-      Array.from(Array(10).keys()).flatMap((x) =>
-        Array.from(Array(10).keys()).map((y) => {
-          const block = new Stone({
-            point: [x, y, 0],
-            size: [1, 1, 1],
-          })
-          return [block.props.id, block]
-        })
-      )
-    ),
-    tiles: Object.fromEntries(
-      Array.from(Array(10).keys()).flatMap((x) =>
-        Array.from(Array(10).keys()).map((y) => {
-          const block = new Stone({
-            point: [x, y, 0],
-            size: [1, 1, 1],
-          })
-          return [block.props.id, block]
-        })
-      )
-    ),
+    level: new Level(Level.DefaultMap),
+  }
+
+  @computed get map(): Block[] {
+    const items = Object.values(this.state.level.blocks)
+    return items
+      .sort((a, b) => a.props.point[2] - b.props.point[2])
+      .sort((a, b) => a.props.point[1] - b.props.point[1])
+      .sort((a, b) => a.props.point[0] - b.props.point[0])
   }
 
   isPinching = false

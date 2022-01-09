@@ -17,7 +17,7 @@ export const FACINGS = {
 export const DIMENSIONS = {
   x: SIZE,
   y: SIZE / 2,
-  z: SIZE, //Math.hypot(SIZE, SIZE / 2),
+  z: Math.hypot(SIZE, SIZE / 2),
   w: SIZE * 2,
   h: SIZE,
 }

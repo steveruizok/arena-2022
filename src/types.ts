@@ -1,9 +1,9 @@
 import { Handler, WebKitGestureEvent } from '@use-gesture/react'
+import { Level } from '~lib/Level'
 import { Block } from './lib/Block'
 
 export interface GameState {
-  blocks: Record<string, Block>
-  tiles: Record<string, Block>
+  level: Level
 }
 
 export interface Bounds {
