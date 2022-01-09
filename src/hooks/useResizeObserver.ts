@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Bounds } from '../types'
 import { useApp } from './useApp'
+import { Bounds } from '~types'
 
 export function useResizeObserver<T extends Element>(
   ref: React.RefObject<T>,

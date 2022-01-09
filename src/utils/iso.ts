@@ -32,15 +32,6 @@ export const spriteSize = {
   },
 }
 
-// world2d -> screen
-// screen -> world2d
-
-// screen -> world3d
-// space3d -> screen
-
-// world2d -> world3d
-// world3d -> world2d
-
 // export const spaceToSprite = (point: number[]): number[] => {
 //   const screenPoint = spaceToScreen(point)
 //   return [screenPoint[0] + spriteSize.origin.x, screenPoint[0] + spriteSize.origin.y]
@@ -52,7 +43,7 @@ export const isoToScreen = (point: number[]): number[] => {
 }
 
 export const screenToIso = (point: number[]): number[] => {
-  let [x, y, z] = point
+  let [x, y, z = 0] = point
   x /= DIMENSIONS.w / 2
   x /= 2
   y -= PADDING

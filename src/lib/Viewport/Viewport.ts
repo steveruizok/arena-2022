@@ -1,8 +1,9 @@
 import { action, computed, makeObservable, observable } from 'mobx'
-import { App } from './App'
-import { Bounds, Camera } from '../types'
+import { App } from '../App'
+import { Bounds, Camera } from '../../types'
 import Vec from '@tldraw/vec'
-import { FIT_TO_SCREEN_PADDING } from '../constants'
+import { FIT_TO_SCREEN_PADDING } from '../../constants'
+import { screenToIso } from '../../utils/iso'
 
 export class Viewport {
   app: App
@@ -103,9 +104,8 @@ export class Viewport {
     return [x, y]
   }
 
-  screenToWorld3d(point: number[]): number[] {
-    const worldPoint = this.screenToWorld(point)
-    return [0, 0]
+  screenToIso(point: number[]): number[] {
+    return screenToIso(point)
   }
 
   pinchCamera(point: number[], delta: number[], zoom: number) {

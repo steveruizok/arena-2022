@@ -1,6 +1,6 @@
 import { action, makeObservable, observable } from 'mobx'
-import { App } from '.'
-import { EventHandlerTypes } from '../types'
+import { App } from '..'
+import { EventHandlerTypes } from '../../types'
 
 export class Inputs {
   app: App
@@ -17,10 +17,12 @@ export class Inputs {
   @observable altKey = false
   @observable spaceKey = false
   @observable isPinching = false
-  @observable currentScreenPoint = [0, 0]
   @observable currentPoint = [0, 0]
-  @observable previousScreenPoint = [0, 0]
+  @observable currentScreenPoint = [0, 0]
+  @observable currentIsoPoint = [0, 0]
   @observable previousPoint = [0, 0]
+  @observable previousIsoPoint = [0, 0]
+  @observable previousScreenPoint = [0, 0]
   @observable originScreenPoint = [0, 0]
   @observable originPoint = [0, 0]
   @observable state: 'pointing' | 'pinching' | 'idle' = 'idle'
@@ -38,6 +40,10 @@ export class Inputs {
     if ('clientX' in event) {
       this.previousScreenPoint = this.currentScreenPoint
       this.currentScreenPoint = [event.clientX, event.clientY]
+      this.previousPoint = this.currentPoint
+      this.currentPoint = this.app.viewport.screenToWorld(this.currentScreenPoint)
+      this.previousIsoPoint = this.currentIsoPoint
+      this.currentIsoPoint = this.app.viewport.screenToIso(this.currentScreenPoint)
     }
     if ('shiftKey' in event) {
       this.shiftKey = event.shiftKey
@@ -50,16 +56,15 @@ export class Inputs {
     this.updateModifiers(event)
   }
 
-  @action onPointerDown = (point: number[], event: EventHandlerTypes['pointer']) => {
+  @action onPointerDown = (event: EventHandlerTypes['pointer']) => {
     this.pointerIds.add(event.pointerId)
     this.updateModifiers(event)
     this.originScreenPoint = this.currentScreenPoint
-    this.originPoint = point
+    this.originPoint = this.currentPoint
     this.state = 'pointing'
   }
 
   @action onPointerMove = (
-    point: number[],
     event:
       | EventHandlerTypes['gesture']
       | EventHandlerTypes['pointer']
@@ -69,11 +74,9 @@ export class Inputs {
   ) => {
     if (this.state === 'pinching') return
     this.updateModifiers(event)
-    this.previousPoint = this.currentPoint
-    this.currentPoint = point
   }
 
-  @action onPointerUp = (point: number[], event: EventHandlerTypes['pointer']) => {
+  @action onPointerUp = (event: EventHandlerTypes['pointer']) => {
     this.pointerIds.clear()
     this.updateModifiers(event)
     this.state = 'idle'
@@ -100,7 +103,6 @@ export class Inputs {
   }
 
   @action onPinchStart = (
-    point: number[],
     event:
       | EventHandlerTypes['gesture']
       | EventHandlerTypes['pointer']
@@ -113,7 +115,6 @@ export class Inputs {
   }
 
   @action onPinch = (
-    point: number[],
     event:
       | EventHandlerTypes['gesture']
       | EventHandlerTypes['pointer']
@@ -126,7 +127,6 @@ export class Inputs {
   }
 
   @action onPinchEnd = (
-    point: number[],
     event:
       | EventHandlerTypes['gesture']
       | EventHandlerTypes['pointer']

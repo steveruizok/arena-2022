@@ -1,10 +1,10 @@
 import { action, computed, makeObservable, observable } from 'mobx'
-import { Bounds, Bounds3d, Verts } from '../types'
-import { uniqueId } from '../utils'
-import { isoToScreen, screenToIso } from '../utils/iso'
-import { Vec3d } from '../utils/vec3d'
+import { Bounds, Bounds3d, Verts } from '../../types'
+import { uniqueId } from '../../utils'
+import { isoToScreen, screenToIso } from '../../utils/iso'
+import { Vec3d } from '../../utils/vec3d'
 
-interface BlockProps {
+export interface BlockProps {
   id: string
   type: string
   color: string
@@ -29,6 +29,8 @@ export class Block {
     this.animatingToPoint = [...this.props.point]
     makeObservable(this)
   }
+
+  Component: () => JSX.Element = () => <g />
 
   // Iso
 

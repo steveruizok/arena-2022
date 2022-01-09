@@ -1,7 +1,7 @@
 import React from 'react'
 import { useGesture } from '@use-gesture/react'
 import { useApp } from './useApp'
-import { EventHandlerTypes } from '../types'
+import { EventHandlerTypes } from '~types'
 
 type GestureEvents = {
   onWheel: EventHandlerTypes['wheel']

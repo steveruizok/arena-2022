@@ -2,6 +2,7 @@ import Vec from '@tldraw/vec'
 import { makeObservable, observable } from 'mobx'
 import { EventHandlers, EventHandlerTypes, GameState } from '../types'
 import { Block } from './Block'
+import { Stone } from './blocks/Stone'
 import { Inputs } from './Inputs'
 import { RootState } from './statechart/RootState'
 import { Viewport } from './Viewport'
@@ -20,7 +21,7 @@ export class App extends RootState {
     blocks: Object.fromEntries(
       Array.from(Array(10).keys()).flatMap((x) =>
         Array.from(Array(10).keys()).map((y) => {
-          const block = new Block({
+          const block = new Stone({
             point: [x, y, 0],
             size: [1, 1, 1],
           })
@@ -31,7 +32,7 @@ export class App extends RootState {
     tiles: Object.fromEntries(
       Array.from(Array(10).keys()).flatMap((x) =>
         Array.from(Array(10).keys()).map((y) => {
-          const block = new Block({
+          const block = new Stone({
             point: [x, y, 0],
             size: [1, 1, 1],
           })
@@ -51,28 +52,19 @@ export class App extends RootState {
 
   readonly onPointerDown: EventHandlers['pointer'] = (info) => {
     if ('clientX' in info.event) {
-      const { clientX, clientY } = info.event
-      this.inputs.onPointerDown(
-        [...this.viewport.screenToWorld([clientX, clientY]), 0.5],
-        info.event
-      )
+      this.inputs.onPointerDown(info.event)
     }
   }
 
   readonly onPointerUp: EventHandlers['pointer'] = (info) => {
     if ('clientX' in info.event) {
-      const { clientX, clientY } = info.event
-      this.inputs.onPointerUp([...this.viewport.screenToWorld([clientX, clientY]), 0.5], info.event)
+      this.inputs.onPointerUp(info.event)
     }
   }
 
   readonly onPointerMove: EventHandlers['pointer'] = (info) => {
     if ('clientX' in info.event) {
-      const { clientX, clientY } = info.event
-      this.inputs.onPointerMove(
-        [...this.viewport.screenToWorld([clientX, clientY]), 0.5],
-        info.event
-      )
+      this.inputs.onPointerMove(info.event)
     }
   }
 
@@ -86,17 +78,17 @@ export class App extends RootState {
 
   readonly onPinchStart: EventHandlers['pinch'] = (info) => {
     this.isPinching = true
-    this.inputs.onPinchStart([...this.viewport.screenToWorld(info.point), 0.5], info.event)
+    this.inputs.onPinchStart(info.event)
   }
 
   readonly onPinch: EventHandlers['pinch'] = (info) => {
     this.isPinching = true
-    this.inputs.onPinch([...this.viewport.screenToWorld(info.point), 0.5], info.event)
+    this.inputs.onPinch(info.event)
     this.viewport.pinchCamera(info.point, [0, 0], info.offset[0])
   }
 
   readonly onPinchEnd: EventHandlers['pinch'] = (info) => {
     this.isPinching = false
-    this.inputs.onPinchEnd([...this.viewport.screenToWorld(info.point), 0.5], info.event)
+    this.inputs.onPinchEnd(info.event)
   }
 }
