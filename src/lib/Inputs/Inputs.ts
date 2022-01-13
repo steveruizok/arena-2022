@@ -19,7 +19,7 @@ export class Inputs {
   @observable isPinching = false
   @observable currentPoint = [0, 0]
   @observable currentScreenPoint = [0, 0]
-  @observable currentIsoPoint = [0, 0]
+  @observable currentIsoPoint = [0, 0, 0]
   @observable previousPoint = [0, 0]
   @observable previousIsoPoint = [0, 0]
   @observable previousScreenPoint = [0, 0]
@@ -29,6 +29,15 @@ export class Inputs {
 
   pointerIds = new Set<number>()
 
+  private updatePoint(point: number[]) {
+    this.previousScreenPoint = this.currentScreenPoint
+    this.currentScreenPoint = point
+    this.previousPoint = this.currentPoint
+    this.currentPoint = this.app.viewport.screenToWorld(this.currentScreenPoint)
+    this.previousIsoPoint = this.currentIsoPoint
+    this.currentIsoPoint = this.app.viewport.screenToIso(this.currentScreenPoint)
+  }
+
   private updateModifiers(
     event:
       | EventHandlerTypes['gesture']
@@ -37,14 +46,6 @@ export class Inputs {
       | EventHandlerTypes['wheel']
       | EventHandlerTypes['touch']
   ) {
-    if ('clientX' in event) {
-      this.previousScreenPoint = this.currentScreenPoint
-      this.currentScreenPoint = [event.clientX, event.clientY]
-      this.previousPoint = this.currentPoint
-      this.currentPoint = this.app.viewport.screenToWorld(this.currentScreenPoint)
-      this.previousIsoPoint = this.currentIsoPoint
-      this.currentIsoPoint = this.app.viewport.screenToIso(this.currentScreenPoint)
-    }
     if ('shiftKey' in event) {
       this.shiftKey = event.shiftKey
       this.ctrlKey = event.metaKey || event.ctrlKey
@@ -56,8 +57,9 @@ export class Inputs {
     this.updateModifiers(event)
   }
 
-  @action onPointerDown = (event: EventHandlerTypes['pointer']) => {
+  @action onPointerDown = (point: number[], event: EventHandlerTypes['pointer']) => {
     this.pointerIds.add(event.pointerId)
+    this.updatePoint(point)
     this.updateModifiers(event)
     this.originScreenPoint = this.currentScreenPoint
     this.originPoint = this.currentPoint
@@ -65,6 +67,7 @@ export class Inputs {
   }
 
   @action onPointerMove = (
+    point: number[],
     event:
       | EventHandlerTypes['gesture']
       | EventHandlerTypes['pointer']
@@ -73,10 +76,12 @@ export class Inputs {
       | EventHandlerTypes['touch']
   ) => {
     if (this.state === 'pinching') return
+    this.updatePoint(point)
     this.updateModifiers(event)
   }
 
-  @action onPointerUp = (event: EventHandlerTypes['pointer']) => {
+  @action onPointerUp = (point: number[], event: EventHandlerTypes['pointer']) => {
+    this.updatePoint(point)
     this.pointerIds.clear()
     this.updateModifiers(event)
     this.state = 'idle'

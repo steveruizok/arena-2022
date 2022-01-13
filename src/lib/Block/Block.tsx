@@ -1,30 +1,50 @@
 import { action, computed, makeObservable, observable } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { App } from '~lib'
+import { pointInBounds, pointInCube, pointInPolygon } from '~utils/geom'
 import { Bounds, Bounds3d, Verts } from '../../types'
-import { isoToScreen, screenToIso } from '../../utils/iso'
+// import { isoToScreen, screenToIso } from '../../utils/iso'
 import { Vec3d } from '../../utils/vec3d'
+
+export interface BlockComponentProps {
+  isSelected: boolean
+  isHovered: boolean
+}
+
+export type BlockComponent = (props: BlockComponentProps) => JSX.Element
+
+export type BlockIndicator = (props: BlockComponentProps) => JSX.Element
+
+export interface AdjacentBlocks {
+  north: boolean
+  northEast: boolean
+  east: boolean
+  southEast: boolean
+  west: boolean
+  southWest: boolean
+  south: boolean
+  northWest: boolean
+  below: boolean
+  above: boolean
+}
 
 export interface BlockProps {
   id: string
   type: string
   color: string
   point: number[]
+  offset: number[]
   size: number[]
   facing: string
 }
 
 export class Block {
+  app: App
+
   @observable props: BlockProps
 
-  static defaultProps: BlockProps = {
-    id: 'block',
-    type: 'block',
-    point: [0, 0, 0],
-    size: [1, 1, 1],
-    facing: 'north',
-    color: '#26aff3',
-  }
-
-  constructor(options = {} as Partial<BlockProps>) {
+  constructor(app: App, options = {} as Partial<BlockProps>) {
+    this.app = app
     // @ts-ignore
     const { defaultProps } = this.constructor
     this.props = { ...defaultProps, ...options }
@@ -32,12 +52,38 @@ export class Block {
     makeObservable(this)
   }
 
-  Component: () => JSX.Element = () => <g />
+  static defaultProps: BlockProps = {
+    id: 'block',
+    type: 'block',
+    point: [0, 0, 0],
+    offset: [0, 0, 0],
+    size: [1, 1, 1],
+    facing: 'north',
+    color: '#26aff3',
+  }
+
+  Component: BlockComponent = () => <g />
+
+  Indicator: BlockIndicator = () => {
+    const {
+      verts: { backUp, rightUp, frontUp, leftUp },
+    } = this
+    return (
+      <g fill={'none'} stroke={'red'} strokeLinejoin="round">
+        <polygon points={this.outline.join(' ')} strokeWidth={2} opacity={0.3} />
+        <polygon
+          points={[backUp, rightUp, frontUp, leftUp].join(' ')}
+          strokeWidth={1}
+          opacity={1}
+        />
+      </g>
+    )
+  }
 
   // Iso
 
   @computed get isoBounds(): Bounds3d {
-    const [px, py, pz] = this.props.point
+    const [px, py, pz] = Vec3d.add(this.props.point, this.props.offset)
     const [x, y, z] = this.props.size
     return {
       minX: px,
@@ -73,9 +119,93 @@ export class Block {
     }
   }
 
+  @computed get adjacent(): AdjacentBlocks {
+    const { isoBounds } = this
+    const { blocksArray } = this.app.state.level
+    return {
+      north: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minX <= isoBounds.minX &&
+          block.isoBounds.maxX >= isoBounds.maxX &&
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ === isoBounds.maxZ &&
+          block.isoBounds.maxY === isoBounds.minY
+      ),
+      northEast: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ === isoBounds.maxZ &&
+          block.isoBounds.minX === isoBounds.maxX &&
+          block.isoBounds.maxY === isoBounds.minY
+      ),
+      east: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minY <= isoBounds.minY &&
+          block.isoBounds.maxY >= isoBounds.maxY &&
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ === isoBounds.maxZ &&
+          block.isoBounds.minX === isoBounds.maxX
+      ),
+      southEast: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ >= isoBounds.maxZ &&
+          block.isoBounds.minY === isoBounds.maxY &&
+          block.isoBounds.minX === isoBounds.maxX
+      ),
+      south: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minX <= isoBounds.minX &&
+          block.isoBounds.maxX >= isoBounds.maxX &&
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ === isoBounds.maxZ &&
+          block.isoBounds.minY === isoBounds.maxY
+      ),
+      southWest: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ >= isoBounds.maxZ &&
+          block.isoBounds.maxX === isoBounds.minX &&
+          block.isoBounds.minY === isoBounds.maxY
+      ),
+      west: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minY <= isoBounds.minY &&
+          block.isoBounds.maxY >= isoBounds.maxY &&
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ === isoBounds.maxZ &&
+          block.isoBounds.maxX === isoBounds.minX
+      ),
+      northWest: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minZ <= isoBounds.minZ &&
+          block.isoBounds.maxZ === isoBounds.maxZ &&
+          block.isoBounds.maxY === isoBounds.minY &&
+          block.isoBounds.maxX === isoBounds.minX
+      ),
+      below: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minX <= isoBounds.minX &&
+          block.isoBounds.maxX >= isoBounds.maxX &&
+          block.isoBounds.minY <= isoBounds.minY &&
+          block.isoBounds.maxY >= isoBounds.maxY &&
+          block.isoBounds.maxZ === isoBounds.minZ
+      ),
+      above: !!blocksArray.find(
+        (block) =>
+          block.isoBounds.minX <= isoBounds.minX &&
+          block.isoBounds.maxX >= isoBounds.maxX &&
+          block.isoBounds.minY <= isoBounds.minY &&
+          block.isoBounds.maxY >= isoBounds.maxY &&
+          block.isoBounds.minZ === isoBounds.maxZ
+      ),
+    }
+  }
+
   // Screen
 
   @computed get bounds(): Bounds {
+    const { isoToScreen } = this.app.viewport
     const {
       isoVerts: { leftDown, rightDown, backUp, frontDown },
     } = this
@@ -101,9 +231,21 @@ export class Block {
 
   @computed get verts(): Verts {
     return Object.entries(this.isoVerts).reduce(
-      (acc, [key, value]) => Object.assign(acc, { [key]: isoToScreen(value) }),
+      (acc, [key, value]) => Object.assign(acc, { [key]: this.app.viewport.isoToScreen(value) }),
       {} as Verts
     )
+  }
+
+  @computed get outline() {
+    const { verts } = this
+    return [
+      verts.leftUp,
+      verts.backUp,
+      verts.rightUp,
+      verts.rightDown,
+      verts.frontDown,
+      verts.leftDown,
+    ]
   }
 
   @action update(change: Partial<BlockProps>) {
@@ -113,6 +255,7 @@ export class Block {
 
   animationFrame: any = 0
   animatingToPoint = [0, 0, 0]
+  animatingOffset = [0, 0, 0]
 
   move = (delta: number[]) => {
     cancelAnimationFrame(this.animationFrame)
@@ -136,7 +279,19 @@ export class Block {
     loop()
   }
 
+  hitTestPoint(point: number[]) {
+    return pointInBounds(point, this.bounds) && pointInPolygon(point, this.outline)
+  }
+
+  hitTestIsoPoint(point: number[]) {
+    return pointInCube(point, this.props.point, this.props.size)
+  }
+
   get id() {
     return this.props.id
   }
+
+  static Component = (component: BlockComponent) => observer(component)
+
+  static Indicator = (indicator: BlockIndicator) => observer(indicator)
 }

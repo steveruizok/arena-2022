@@ -83,7 +83,10 @@ export type EventHandlers = {
     }
   ) => void
   pointer: (
-    info: EventHandlerInfo & { event: EventHandlerTypes['pointer'] | EventHandlerTypes['wheel'] }
+    info: EventHandlerInfo & {
+      point: number[]
+      event: EventHandlerTypes['pointer'] | EventHandlerTypes['wheel']
+    }
   ) => void
   keyboard: (info: EventHandlerInfo & { event: EventHandlerTypes['keyboard'] }) => void
 }

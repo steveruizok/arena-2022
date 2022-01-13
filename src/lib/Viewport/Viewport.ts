@@ -3,7 +3,7 @@ import { App } from '../App'
 import { Bounds, Camera } from '../../types'
 import Vec from '@tldraw/vec'
 import { FIT_TO_SCREEN_PADDING } from '../../constants'
-import { screenToIso } from '../../utils/iso'
+import { DIMENSIONS, PADDING } from '../../utils/iso'
 
 export class Viewport {
   app: App
@@ -15,6 +15,14 @@ export class Viewport {
   constructor(app: App) {
     this.app = app
     makeObservable(this)
+  }
+
+  @computed get offset() {
+    const {
+      bounds,
+      camera: { zoom },
+    } = this
+    return [bounds.width / 2, bounds.height / 4]
   }
 
   @observable bounds: Bounds = {
@@ -31,16 +39,6 @@ export class Viewport {
   @observable camera: Camera = {
     point: [0, 0],
     zoom: 1,
-  }
-
-  @action updateBounds(bounds: Bounds) {
-    this.bounds = bounds
-    return this
-  }
-
-  @action updateCamera(update: Partial<Camera>) {
-    this.camera = { ...this.camera, ...update }
-    return this
   }
 
   @computed get currentView(): Bounds {
@@ -81,6 +79,16 @@ export class Viewport {
     }
   }
 
+  @action updateBounds(bounds: Bounds) {
+    this.bounds = bounds
+    return this
+  }
+
+  @action updateCamera(update: Partial<Camera>) {
+    this.camera = { ...this.camera, ...update }
+    return this
+  }
+
   panCamera(delta: number[]) {
     this.updateCamera({
       point: Vec.sub(this.camera.point, Vec.div(delta, this.camera.zoom)),
@@ -88,24 +96,46 @@ export class Viewport {
     return this
   }
 
-  screenToWorld(point: number[]): number[] {
-    const { minX, minY } = this.bounds
-    const { point: cameraPoint, zoom } = this.camera
-    const x = (point[0] - cameraPoint[0]) / zoom + minX
-    const y = (point[1] - cameraPoint[1]) / zoom + minY
-    return [x, y]
+  screenToWorld = (point: number[]): number[] => {
+    const {
+      bounds,
+      offset,
+      camera: { point: cameraPoint, zoom },
+    } = this
+    return [
+      (point[0] - bounds.minX) / zoom - cameraPoint[0] - offset[0],
+      (point[1] - bounds.minY) / zoom - cameraPoint[1] - offset[1],
+    ]
   }
 
-  worldToScreen(point: number[]): number[] {
-    const { minX, minY } = this.bounds
-    const { point: cameraPoint, zoom } = this.camera
-    const x = (point[0] - minX) * zoom + cameraPoint[0]
-    const y = (point[1] - minY) * zoom + cameraPoint[1]
-    return [x, y]
+  screenToIso = (point: number[]): number[] => {
+    return this.worldToIso(this.screenToWorld(point))
   }
 
-  screenToIso(point: number[]): number[] {
-    return screenToIso(point)
+  worldToIso = (point: number[]): number[] => {
+    let [x, y, z = 0] = point
+    x /= DIMENSIONS.w / 2
+    x /= 2
+    y -= PADDING
+    y /= DIMENSIONS.h / 2
+    y /= 2
+    return [y + x, y - x, z]
+  }
+
+  worldToScreen = (point: number[]): number[] => {
+    const {
+      offset,
+      camera: { point: cameraPoint, zoom },
+    } = this
+    return [
+      point[0] * zoom + cameraPoint[0] + offset[0],
+      point[1] * zoom + cameraPoint[1] + offset[1],
+    ]
+  }
+
+  isoToScreen = (point: number[]): number[] => {
+    const [x, y, z] = point
+    return [(x - y) * (DIMENSIONS.w / 2), (x + y) * (DIMENSIONS.h / 2) - (z - 1) * DIMENSIONS.z]
   }
 
   pinchCamera(point: number[], delta: number[], zoom: number) {

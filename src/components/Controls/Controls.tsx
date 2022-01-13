@@ -6,17 +6,13 @@ export const Controls = observer(function Controls() {
   const app = useApp()
   return (
     <div className="controls">
-      <div>
-        <code>
-          Screen Point: [{app.inputs.currentScreenPoint.map((p) => Math.floor(p)).join(', ')}]
-        </code>
-      </div>
-      <div>
-        <code>World Point: [{app.inputs.currentPoint.map((p) => Math.floor(p)).join(', ')}]</code>
-      </div>
-      <div>
-        <code>Iso Point: [{app.inputs.currentIsoPoint.map((p) => Math.floor(p)).join(', ')}]</code>
-      </div>
+      <pre>{`Screen Point: [${app.inputs.currentScreenPoint.map((p) => Math.floor(p)).join(', ')}] 
+World Point: [${app.inputs.currentPoint.map((p) => Math.floor(p)).join(', ')}] 
+Iso Point: [${app.inputs.currentIsoPoint.map((p) => Math.floor(p)).join(', ')}]
+Current State:${app.currentPath}
+Hovered Block: ${app.hoveredBlock?.id}
+Hovered Adjacent: ${JSON.stringify(app.hoveredBlock?.adjacent, null, 2)}
+`}</pre>
     </div>
   )
 })

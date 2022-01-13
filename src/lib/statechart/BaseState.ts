@@ -1,16 +1,7 @@
-import { makeObservable, observable } from 'mobx'
-import { App } from '../App'
+import { computed, makeObservable, observable } from 'mobx'
 
-export class BaseState {
-  constructor(app?: App, parent?: BaseState) {
-    this.app = app ?? ({} as App)
-    this.parent = parent
-    makeObservable(this)
-  }
-
-  name: string = 'state'
-
-  app: App
+export abstract class BaseState {
+  abstract id: string
 
   parent?: BaseState
 
@@ -26,9 +17,7 @@ export class BaseState {
 
   states = new Map<string, BaseState>()
 
-  registerState(state: BaseState) {
-    this.states.set(state.name, state)
-  }
+  abstract registerState: (State: any) => this
 
   exit = (payload?: any) => {
     if (this.currentState) {
@@ -40,7 +29,7 @@ export class BaseState {
   enter = (payload?: any) => {
     if (this.initial) {
       const next = this.states.get(this.initial)
-      if (!next) throw Error(`No state found named ${this.initial}`)
+      if (!next) throw Error(`No state found with id ${this.initial}`)
       this.currentState = next
       this.currentState.enter(payload)
     }
@@ -54,22 +43,22 @@ export class BaseState {
 
   events = new Map<string, (payload: any) => void>()
 
-  registerEvent = (name: string, cb: (payload: any) => void) => {
-    this.events.set(name, cb)
+  registerEvent = (id: string, cb: (payload: any) => void) => {
+    this.events.set(id, cb)
   }
 
-  handleEvent = (name: `on${any}`, payload: any) => {
-    const eventHandler = this[name as keyof this]
+  handleEvent = (id: `on${any}`, payload: any) => {
+    const eventHandler = this[id as keyof this]
     if (eventHandler && 'call' in eventHandler)
       (eventHandler as unknown as (payload: any) => void)(payload)
-    this.currentState?.handleEvent(name, payload)
+    this.currentState?.handleEvent(id, payload)
   }
 
   // Transitions
 
-  transition(name: string) {
-    const next = this.states.get(name)
-    if (!name) throw Error(`No state found named ${name}`)
+  transition(id: string) {
+    const next = this.states.get(id)
+    if (!id) throw Error(`No state found with id ${id}`)
     const prev = this.currentState
     if (prev) {
       this.prevState = prev
@@ -84,9 +73,9 @@ export class BaseState {
     const ids = path.split('.').reverse()
     let state: BaseState = this
     while (ids.length > 0) {
-      const name = ids.pop()
-      if (!name) return true
-      if (state.currentState?.name === name) {
+      const id = ids.pop()
+      if (!id) return true
+      if (state.currentState?.id === id) {
         if (ids.length === 0) return true
         state = state.currentState
         continue
@@ -109,5 +98,10 @@ export class BaseState {
     if (!this.parent) return 'root'
     if (this.states.size === 0) return 'leaf'
     return 'branch'
+  }
+
+  @computed get currentPath(): string {
+    if (!this.currentState) return this.id
+    return this.id + '.' + this.currentState.currentPath
   }
 }

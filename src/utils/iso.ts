@@ -1,6 +1,7 @@
 export const SIZE = 32
 export const MAX_Z = 2
 export const PADDING = 0
+export const OFFSET = [0, 0]
 export const SEXTANT = (Math.PI * 2) / 8
 export const FACINGS = {
   east: 1,
@@ -37,17 +38,20 @@ export const spriteSize = {
 //   return [screenPoint[0] + spriteSize.origin.x, screenPoint[0] + spriteSize.origin.y]
 // }
 
-export const isoToScreen = (point: number[]): number[] => {
-  const [x, y, z] = point
-  return [(x - y) * (DIMENSIONS.w / 2), (x + y) * (DIMENSIONS.h / 2) - z * DIMENSIONS.z]
-}
+// export const isoToScreen = (point: number[]): number[] => {
+//   const [x, y, z] = point
+//   return [
+//     (x - y) * (DIMENSIONS.w / 2) + OFFSET[0],
+//     (x + y) * (DIMENSIONS.h / 2) - z * DIMENSIONS.z + OFFSET[1],
+//   ]
+// }
 
-export const screenToIso = (point: number[]): number[] => {
-  let [x, y, z = 0] = point
-  x /= DIMENSIONS.w / 2
-  x /= 2
-  y -= PADDING
-  y /= DIMENSIONS.h / 2
-  y /= 2
-  return [Math.floor(y + x), Math.floor(y - x), z]
-}
+// export const screenToIso = (point: number[]): number[] => {
+//   let [x, y, z = 0] = point
+//   x /= DIMENSIONS.w / 2
+//   x /= 2
+//   y -= PADDING
+//   y /= DIMENSIONS.h / 2
+//   y /= 2
+//   return [Math.floor(y + x), Math.floor(y - x), z]
+// }

@@ -12,6 +12,7 @@ type GestureEvents = {
 
 export function useGestureEvents(ref: React.RefObject<HTMLElement>) {
   const app = useApp()
+
   const events = React.useMemo<GestureEvents>(
     () => ({
       onWheel: ({ delta, event }) => {

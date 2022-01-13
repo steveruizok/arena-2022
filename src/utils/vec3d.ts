@@ -10,4 +10,8 @@ export class Vec3d {
   static add(a: number[], b: number[]) {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
   }
+
+  static isEqual(a: number[], b: number[]) {
+    return a.every((v, i) => v === b[i])
+  }
 }

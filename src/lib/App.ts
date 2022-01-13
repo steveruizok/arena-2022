@@ -1,35 +1,51 @@
-import Vec from '@tldraw/vec'
 import { computed, makeObservable, observable } from 'mobx'
-import { EventHandlers, EventHandlerTypes, GameState } from '../types'
-import { Block } from './Block'
+import { EventHandlers, GameState } from '../types'
 import { Inputs } from './Inputs'
-import { RootState } from './statechart/RootState'
 import { Viewport } from './Viewport'
 import { Level } from './Level'
+import { BaseState } from './statechart'
+import { State } from './statechart/State'
+import * as states from './states'
 
-export class App extends RootState {
+export class App extends BaseState {
   constructor() {
     super()
-    this.app = this
+    // @ts-ignore
+    const { states = [], initial } = this.constructor
+    states.forEach((state: typeof State & { id: string }) => this.registerState(state))
+    this.initial = initial
     makeObservable(this)
+    this.enter()
   }
 
+  static states = [states.Selecting]
+
+  static initial = 'selecting'
+
+  id = 'app'
+
   viewport = new Viewport(this)
+
   inputs = new Inputs(this)
 
   @observable state: GameState = {
-    level: new Level(Level.DefaultMap),
-  }
-
-  @computed get map(): Block[] {
-    const items = Object.values(this.state.level.blocks)
-    return items
-      .sort((a, b) => a.props.point[2] - b.props.point[2])
-      .sort((a, b) => a.props.point[1] - b.props.point[1])
-      .sort((a, b) => a.props.point[0] - b.props.point[0])
+    level: new Level(this, Level.DefaultMap),
   }
 
   isPinching = false
+
+  registerState = (ChildState: typeof State & { id: string }) => {
+    this.states.set(ChildState.id, new ChildState(this, this))
+    return this
+  }
+
+  send(event: `on${any}`, payload: any) {
+    this.handleEvent(event, payload)
+  }
+
+  @computed get hoveredBlock() {
+    return this.state.level.getBlockByPoint(this.inputs.currentPoint)
+  }
 
   readonly onWheel: EventHandlers['wheel'] = (info) => {
     if (this.isPinching) return
@@ -39,19 +55,19 @@ export class App extends RootState {
 
   readonly onPointerDown: EventHandlers['pointer'] = (info) => {
     if ('clientX' in info.event) {
-      this.inputs.onPointerDown(info.event)
+      this.inputs.onPointerDown(info.point, info.event)
     }
   }
 
   readonly onPointerUp: EventHandlers['pointer'] = (info) => {
     if ('clientX' in info.event) {
-      this.inputs.onPointerUp(info.event)
+      this.inputs.onPointerUp(info.point, info.event)
     }
   }
 
   readonly onPointerMove: EventHandlers['pointer'] = (info) => {
     if ('clientX' in info.event) {
-      this.inputs.onPointerMove(info.event)
+      this.inputs.onPointerMove(info.point, info.event)
     }
   }
 
