@@ -6,9 +6,12 @@ export class Selecting extends State {
 
   onPointerDown: EventHandlers['pointer'] = (info) => {
     const { hoveredBlock } = this.app
-    if (hoveredBlock) {
+    if (hoveredBlock?.canSelect) {
+      this.app.setSelectedBlocks([hoveredBlock])
       // hoveredBlock.update({type: })
-      hoveredBlock.move([0, 0, 1])
+      // hoveredBlock.move([0, 0, 1])
+    } else {
+      this.app.setSelectedBlocks([])
     }
   }
 }

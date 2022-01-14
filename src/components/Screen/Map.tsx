@@ -17,16 +17,19 @@ export const Map = React.memo(function Map() {
         <Observer>
           {() => (
             <g>
-              {app.state.level.blocksArray.map((block, z) => (
+              {app.state.level.blocksArray.map((block) => (
                 <block.Component
                   key={block.id}
                   isHovered={block === app.hoveredBlock}
-                  isSelected={false}
+                  isSelected={app.state.selectedIds.has(block.props.id)}
                 />
               ))}
               {app.hoveredBlock && (
                 <app.hoveredBlock.Indicator isHovered={true} isSelected={false} />
               )}
+              {app.selectedBlocks.map((block) => (
+                <block.Indicator key={block.id} isHovered={false} isSelected={true} />
+              ))}
             </g>
           )}
         </Observer>

@@ -1,7 +1,7 @@
-import { Block, BlockComponent, BlockProps } from '~lib/Block'
-import { IsoBlock } from './components/IsoBlock'
+import { BlockProps } from '~lib/Block'
+import { TerrainBlock } from './TerrainBlock'
 
-export class DirtTile extends Block {
+export class DirtTile extends TerrainBlock {
   static defaultProps: BlockProps = {
     id: 'dirt',
     type: 'dirt-tile',
@@ -11,20 +11,4 @@ export class DirtTile extends Block {
     facing: 'north',
     color: '#7e4f3a',
   }
-
-  Component = Block.Component(({ isHovered }) => {
-    const {
-      adjacent,
-      verts,
-      props: { color },
-    } = this
-    return (
-      <IsoBlock
-        color={color}
-        verts={verts}
-        adjacent={adjacent}
-        outline={isHovered ? 'red' : undefined}
-      />
-    )
-  })
 }

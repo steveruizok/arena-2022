@@ -11,8 +11,10 @@ World Point: [${app.inputs.currentPoint.map((p) => Math.floor(p)).join(', ')}]
 Iso Point: [${app.inputs.currentIsoPoint.map((p) => Math.floor(p)).join(', ')}]
 Current State:${app.currentPath}
 Hovered Block: ${app.hoveredBlock?.id}
-Hovered Adjacent: ${JSON.stringify(app.hoveredBlock?.adjacent, null, 2)}
+Selected Blocks: ${app.selectedBlocks?.length}
 `}</pre>
     </div>
   )
 })
+
+// Hovered Adjacent: ${JSON.stringify(app.hoveredBlock?.adjacent, null, 2)}

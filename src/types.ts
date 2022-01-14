@@ -4,6 +4,7 @@ import { Block } from './lib/Block'
 
 export interface GameState {
   level: Level
+  selectedIds: Set<string>
 }
 
 export interface Bounds {

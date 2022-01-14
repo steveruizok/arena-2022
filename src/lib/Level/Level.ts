@@ -8,8 +8,9 @@ import { WaterTile } from './terrain/WaterTile'
 import { computed, observable } from 'mobx'
 import { App } from '~lib'
 import { Vec3d } from '~utils/vec3d'
+import { Hero } from './characters/Hero'
 
-type LegendChar = 's' | 'S' | 'd' | 'g' | 'w'
+type LegendChar = 's' | 'S' | 'd' | 'g' | 'w' | '@'
 
 export class Level {
   constructor(app: App, map: string[][]) {
@@ -76,12 +77,21 @@ export class Level {
       .sort((a, b) => b.props.point[2] - a.props.point[2])[0]
   }
 
+  getBlockBy = (fn: (block: Block) => boolean) => {
+    return this.blocksArray
+      .filter(fn)
+      .sort((a, b) => b.props.point[0] - a.props.point[0])
+      .sort((a, b) => b.props.point[1] - a.props.point[1])
+      .sort((a, b) => b.props.point[2] - a.props.point[2])[0]
+  }
+
   static Legend: Record<LegendChar, typeof Block> = {
     S: StoneWall,
     s: StoneTile,
     d: DirtTile,
     g: GrassTile,
     w: WaterTile,
+    '@': Hero,
   }
 
   static DefaultMap: string[][] = [
@@ -98,14 +108,14 @@ export class Level {
       'gggdwwddgg',
     ],
     [
-      '..........',
+      '@.........',
       '..........',
       '..........',
       '....S.....',
       '..........',
       '..........',
       '..........',
-      '..........',
+      '........@.',
       '..........',
       '..........',
     ],

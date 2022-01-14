@@ -1,4 +1,4 @@
-import { computed, makeObservable, observable } from 'mobx'
+import { action, computed, makeObservable, observable } from 'mobx'
 import { EventHandlers, GameState } from '../types'
 import { Inputs } from './Inputs'
 import { Viewport } from './Viewport'
@@ -6,6 +6,7 @@ import { Level } from './Level'
 import { BaseState } from './statechart'
 import { State } from './statechart/State'
 import * as states from './states'
+import { Block } from './Block'
 
 export class App extends BaseState {
   constructor() {
@@ -30,6 +31,7 @@ export class App extends BaseState {
 
   @observable state: GameState = {
     level: new Level(this, Level.DefaultMap),
+    selectedIds: new Set<string>([]),
   }
 
   isPinching = false
@@ -44,8 +46,28 @@ export class App extends BaseState {
   }
 
   @computed get hoveredBlock() {
-    return this.state.level.getBlockByPoint(this.inputs.currentPoint)
+    return this.state.level.getBlockBy(
+      (block) => block.canHover && block.hitTestPoint(this.inputs.currentPoint)
+    )
   }
+
+  @computed get selectedBlocks() {
+    return Array.from(this.state.selectedIds.values()).map((id) =>
+      this.state.level.getBlockById(id)
+    )
+  }
+
+  @action setSelectedBlocks = (blocks: Block[] | string[]) => {
+    const { selectedIds } = this.state
+    selectedIds.clear()
+    if (typeof blocks[0] === 'string') {
+      ;(blocks as string[]).forEach((id) => selectedIds.add(id))
+    } else {
+      ;(blocks as Block[]).forEach((block) => selectedIds.add(block.id))
+    }
+  }
+
+  /* --------------------- Events --------------------- */
 
   readonly onWheel: EventHandlers['wheel'] = (info) => {
     if (this.isPinching) return

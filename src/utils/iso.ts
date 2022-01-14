@@ -1,3 +1,5 @@
+import { Verts } from '~types'
+
 export const SIZE = 32
 export const MAX_Z = 2
 export const PADDING = 0
@@ -24,7 +26,7 @@ export const DIMENSIONS = {
 }
 
 // The size of a sprite (padded around the block)
-export const spriteSize = {
+export const SPRITE_SIZE = {
   width: DIMENSIONS.w + PADDING * 2,
   height: PADDING * 2 + DIMENSIONS.z * MAX_Z + DIMENSIONS.h,
   origin: {

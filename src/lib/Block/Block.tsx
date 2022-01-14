@@ -1,9 +1,9 @@
+import Vec from '@tldraw/vec'
 import { action, computed, makeObservable, observable } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { App } from '~lib'
 import { pointInBounds, pointInCube, pointInPolygon } from '~utils/geom'
 import { Bounds, Bounds3d, Verts } from '../../types'
-// import { isoToScreen, screenToIso } from '../../utils/iso'
 import { Vec3d } from '../../utils/vec3d'
 
 export interface BlockComponentProps {
@@ -39,10 +39,6 @@ export interface BlockProps {
 }
 
 export class Block {
-  app: App
-
-  @observable props: BlockProps
-
   constructor(app: App, options = {} as Partial<BlockProps>) {
     this.app = app
     // @ts-ignore
@@ -62,23 +58,21 @@ export class Block {
     color: '#26aff3',
   }
 
-  Component: BlockComponent = () => <g />
+  static Component = (component: BlockComponent) => observer(component)
 
-  Indicator: BlockIndicator = () => {
-    const {
-      verts: { backUp, rightUp, frontUp, leftUp },
-    } = this
-    return (
-      <g fill={'none'} stroke={'red'} strokeLinejoin="round">
-        <polygon points={this.outline.join(' ')} strokeWidth={2} opacity={0.3} />
-        <polygon
-          points={[backUp, rightUp, frontUp, leftUp].join(' ')}
-          strokeWidth={1}
-          opacity={1}
-        />
-      </g>
-    )
-  }
+  static Indicator = (indicator: BlockIndicator) => observer(indicator)
+
+  app: App
+
+  @observable props: BlockProps
+
+  canSelect = false
+
+  canHover = false
+
+  Component = Block.Component(() => <g />)
+
+  Indicator = Block.Indicator(() => <g />)
 
   // Iso
 
@@ -253,6 +247,23 @@ export class Block {
     this.animatingToPoint = [...this.props.point]
   }
 
+  getPaddedScreenVerts(padding: number) {
+    const { verts } = this
+    const h = Math.hypot(padding, padding)
+    return {
+      centerUp: verts.centerUp,
+      centerDown: verts.centerDown,
+      backUp: Vec.add(verts.backUp, [0, -h]),
+      backDown: Vec.add(verts.backDown, [0, h]),
+      rightUp: Vec.add(verts.rightUp, [h, -h]),
+      rightDown: Vec.add(verts.rightDown, [h, h]),
+      leftUp: Vec.add(verts.leftUp, [-h, -h]),
+      leftDown: Vec.add(verts.leftDown, [-h, h]),
+      frontUp: Vec.add(verts.frontUp, [0, -h]),
+      frontDown: Vec.add(verts.frontDown, [0, h]),
+    }
+  }
+
   animationFrame: any = 0
   animatingToPoint = [0, 0, 0]
   animatingOffset = [0, 0, 0]
@@ -290,8 +301,4 @@ export class Block {
   get id() {
     return this.props.id
   }
-
-  static Component = (component: BlockComponent) => observer(component)
-
-  static Indicator = (indicator: BlockIndicator) => observer(indicator)
 }

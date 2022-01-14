@@ -1,8 +1,7 @@
-import { observer } from 'mobx-react-lite'
-import { Block, BlockProps } from '~lib/Block'
-import { IsoBlock } from './components/IsoBlock'
+import { BlockProps } from '~lib/Block'
+import { TerrainBlock } from './TerrainBlock'
 
-export class GrassTile extends Block {
+export class GrassTile extends TerrainBlock {
   static defaultProps: BlockProps = {
     id: 'grass',
     type: 'grass-tile',
@@ -12,20 +11,4 @@ export class GrassTile extends Block {
     facing: 'north',
     color: '#648949',
   }
-
-  Component = Block.Component(({ isHovered }) => {
-    const {
-      adjacent,
-      verts,
-      props: { color },
-    } = this
-    return (
-      <IsoBlock
-        color={color}
-        verts={verts}
-        adjacent={adjacent}
-        outline={isHovered ? 'red' : undefined}
-      />
-    )
-  })
 }
