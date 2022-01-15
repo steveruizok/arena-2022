@@ -7,6 +7,7 @@ import { BaseState } from './statechart'
 import { State } from './statechart/State'
 import * as states from './states'
 import { Block } from './Block'
+import { PathFinder } from './PathFinder'
 
 export class App extends BaseState {
   constructor() {
@@ -19,19 +20,20 @@ export class App extends BaseState {
     this.enter()
   }
 
-  static states = [states.Selecting]
+  static states = [states.Selecting, states.SelectedCharacters]
 
   static initial = 'selecting'
 
   id = 'app'
 
   viewport = new Viewport(this)
-
+  pathfinder = new PathFinder(this)
   inputs = new Inputs(this)
+  level = new Level(this, Level.DefaultMap)
 
   @observable state: GameState = {
-    level: new Level(this, Level.DefaultMap),
     selectedIds: new Set<string>([]),
+    paths: [],
   }
 
   isPinching = false
@@ -46,15 +48,13 @@ export class App extends BaseState {
   }
 
   @computed get hoveredBlock() {
-    return this.state.level.getBlockBy(
-      (block) => block.canHover && block.hitTestPoint(this.inputs.currentPoint)
-    )
+    const { level } = this
+    const { currentPoint } = this.inputs
+    return level.getBlockBy((block) => block.canHover && block.hitTestPoint(currentPoint))
   }
 
   @computed get selectedBlocks() {
-    return Array.from(this.state.selectedIds.values()).map((id) =>
-      this.state.level.getBlockById(id)
-    )
+    return Array.from(this.state.selectedIds.values()).map((id) => this.level.getBlockById(id)!)
   }
 
   @action setSelectedBlocks = (blocks: Block[] | string[]) => {
@@ -67,12 +67,17 @@ export class App extends BaseState {
     }
   }
 
+  @action setPaths = (paths: number[][][]) => {
+    this.state.paths = paths
+  }
+
   /* --------------------- Events --------------------- */
 
   readonly onWheel: EventHandlers['wheel'] = (info) => {
     if (this.isPinching) return
     this.viewport.panCamera(info.delta)
     this.inputs.onWheel(info.event)
+    this.onPointerMove(info)
   }
 
   readonly onPointerDown: EventHandlers['pointer'] = (info) => {

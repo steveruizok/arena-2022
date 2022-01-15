@@ -32,7 +32,7 @@ export interface BlockProps {
   id: string
   type: string
   color: string
-  point: number[]
+  position: number[]
   offset: number[]
   size: number[]
   facing: string
@@ -43,15 +43,18 @@ export class Block {
     this.app = app
     // @ts-ignore
     const { defaultProps } = this.constructor
+    this.defaultProps = defaultProps as BlockProps
     this.props = { ...defaultProps, ...options }
-    this.animatingToPoint = [...this.props.point]
+    this.animatingToPoint = [...this.props.position]
     makeObservable(this)
   }
+
+  defaultProps: BlockProps
 
   static defaultProps: BlockProps = {
     id: 'block',
     type: 'block',
-    point: [0, 0, 0],
+    position: [0, 0, 0],
     offset: [0, 0, 0],
     size: [1, 1, 1],
     facing: 'north',
@@ -70,6 +73,8 @@ export class Block {
 
   canHover = false
 
+  canWalk = false
+
   Component = Block.Component(() => <g />)
 
   Indicator = Block.Indicator(() => <g />)
@@ -77,7 +82,7 @@ export class Block {
   // Iso
 
   @computed get isoBounds(): Bounds3d {
-    const [px, py, pz] = Vec3d.add(this.props.point, this.props.offset)
+    const [px, py, pz] = Vec3d.add(this.props.position, this.props.offset)
     const [x, y, z] = this.props.size
     return {
       minX: px,
@@ -113,86 +118,24 @@ export class Block {
     }
   }
 
+  findAdjacent(point: number[]) {
+    const block = this.app.level.getBlockByPosition(Vec3d.add(this.props.position, point))
+    if (point[2] === 0 && block) return block.isoBounds['maxZ'] === this.isoBounds['maxZ']
+    return !!block
+  }
+
   @computed get adjacent(): AdjacentBlocks {
-    const { isoBounds } = this
-    const { blocksArray } = this.app.state.level
     return {
-      north: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minX <= isoBounds.minX &&
-          block.isoBounds.maxX >= isoBounds.maxX &&
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ === isoBounds.maxZ &&
-          block.isoBounds.maxY === isoBounds.minY
-      ),
-      northEast: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ === isoBounds.maxZ &&
-          block.isoBounds.minX === isoBounds.maxX &&
-          block.isoBounds.maxY === isoBounds.minY
-      ),
-      east: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minY <= isoBounds.minY &&
-          block.isoBounds.maxY >= isoBounds.maxY &&
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ === isoBounds.maxZ &&
-          block.isoBounds.minX === isoBounds.maxX
-      ),
-      southEast: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ >= isoBounds.maxZ &&
-          block.isoBounds.minY === isoBounds.maxY &&
-          block.isoBounds.minX === isoBounds.maxX
-      ),
-      south: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minX <= isoBounds.minX &&
-          block.isoBounds.maxX >= isoBounds.maxX &&
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ === isoBounds.maxZ &&
-          block.isoBounds.minY === isoBounds.maxY
-      ),
-      southWest: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ >= isoBounds.maxZ &&
-          block.isoBounds.maxX === isoBounds.minX &&
-          block.isoBounds.minY === isoBounds.maxY
-      ),
-      west: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minY <= isoBounds.minY &&
-          block.isoBounds.maxY >= isoBounds.maxY &&
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ === isoBounds.maxZ &&
-          block.isoBounds.maxX === isoBounds.minX
-      ),
-      northWest: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minZ <= isoBounds.minZ &&
-          block.isoBounds.maxZ === isoBounds.maxZ &&
-          block.isoBounds.maxY === isoBounds.minY &&
-          block.isoBounds.maxX === isoBounds.minX
-      ),
-      below: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minX <= isoBounds.minX &&
-          block.isoBounds.maxX >= isoBounds.maxX &&
-          block.isoBounds.minY <= isoBounds.minY &&
-          block.isoBounds.maxY >= isoBounds.maxY &&
-          block.isoBounds.maxZ === isoBounds.minZ
-      ),
-      above: !!blocksArray.find(
-        (block) =>
-          block.isoBounds.minX <= isoBounds.minX &&
-          block.isoBounds.maxX >= isoBounds.maxX &&
-          block.isoBounds.minY <= isoBounds.minY &&
-          block.isoBounds.maxY >= isoBounds.maxY &&
-          block.isoBounds.minZ === isoBounds.maxZ
-      ),
+      north: this.findAdjacent([0, -1, 0]),
+      northEast: this.findAdjacent([1, -1, 0]),
+      east: this.findAdjacent([1, 0, 0]),
+      southEast: this.findAdjacent([1, 1, 0]),
+      south: this.findAdjacent([0, 1, 0]),
+      southWest: this.findAdjacent([-1, 1, 0]),
+      west: this.findAdjacent([-1, 0, 0]),
+      northWest: this.findAdjacent([-1, -1, 0]),
+      above: this.findAdjacent([0, 0, 1]),
+      below: this.findAdjacent([0, 0, -1]),
     }
   }
 
@@ -244,7 +187,7 @@ export class Block {
 
   @action update(change: Partial<BlockProps>) {
     Object.assign(this.props, change)
-    this.animatingToPoint = [...this.props.point]
+    this.animatingToPoint = [...this.props.position]
   }
 
   getPaddedScreenVerts(padding: number) {
@@ -268,22 +211,22 @@ export class Block {
   animatingToPoint = [0, 0, 0]
   animatingOffset = [0, 0, 0]
 
-  move = (delta: number[]) => {
+  moveBy = (delta: number[]) => {
     cancelAnimationFrame(this.animationFrame)
     const {
       animatingToPoint,
-      props: { point: currentPoint },
+      props: { position },
     } = this
     const startPoint = [...animatingToPoint]
-    const nextPoint = Vec3d.add(this.animatingToPoint, delta)
-    this.animatingToPoint = nextPoint
-    const distance = Vec3d.dist(startPoint, nextPoint)
+    const nextPosition = Vec3d.add(this.animatingToPoint, delta)
+    this.animatingToPoint = nextPosition
+    const distance = Vec3d.dist(startPoint, nextPosition)
     let start = performance.now()
     let duration = distance * 20 * 8
     const loop = () => {
       let t = (performance.now() - start) / duration
       if (t > 1) t = 1
-      this.update({ point: Vec3d.lrp(currentPoint, nextPoint, t) })
+      this.update({ position: Vec3d.lrp(position, nextPosition, t) })
       if (t >= 1) return
       this.animationFrame = requestAnimationFrame(loop)
     }
@@ -295,7 +238,7 @@ export class Block {
   }
 
   hitTestIsoPoint(point: number[]) {
-    return pointInCube(point, this.props.point, this.props.size)
+    return pointInCube(point, this.props.position, this.props.size)
   }
 
   get id() {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Block } from '~lib/Block'
+import { INDICATOR_PATH } from '~utils/iso'
 
 export class TerrainBlock extends Block {
   canHover = true
@@ -64,21 +65,12 @@ export class TerrainBlock extends Block {
 
   Indicator = Block.Indicator(() => {
     const {
-      verts: { backUp, rightUp, frontUp, leftUp },
+      verts: { backUp },
     } = this
     return (
-      <g fill={'none'} stroke={'red'} strokeLinejoin="round">
-        <polygon points={this.outline.join(' ')} strokeWidth={2} opacity={0.3} />
-        <polygon
-          points={[backUp, rightUp, frontUp, leftUp].join(' ')}
-          stroke="black"
-          strokeWidth={3}
-        />
-        <polygon
-          points={[backUp, rightUp, frontUp, leftUp].join(' ')}
-          stroke="orange"
-          strokeWidth={1.5}
-        />
+      <g transform={`translate(${backUp})`} fill="none" strokeLinejoin="round">
+        <path d={INDICATOR_PATH} stroke="black" strokeWidth={3} />
+        <path d={INDICATOR_PATH} stroke="orange" strokeWidth={1.5} />
       </g>
     )
   })

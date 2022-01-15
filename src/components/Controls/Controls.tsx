@@ -8,7 +8,8 @@ export const Controls = observer(function Controls() {
     <div className="controls">
       <pre>{`Screen Point: [${app.inputs.currentScreenPoint.map((p) => Math.floor(p)).join(', ')}] 
 World Point: [${app.inputs.currentPoint.map((p) => Math.floor(p)).join(', ')}] 
-Iso Point: [${app.inputs.currentIsoPoint.map((p) => Math.floor(p)).join(', ')}]
+Iso Point: [${app.inputs.currentIsoPoint.map((p) => p.toFixed(2))}]
+Iso Position: [${app.inputs.currentIsoPosition}]
 Current State:${app.currentPath}
 Hovered Block: ${app.hoveredBlock?.id}
 Selected Blocks: ${app.selectedBlocks?.length}

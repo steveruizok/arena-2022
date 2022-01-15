@@ -25,13 +25,19 @@ export const DIMENSIONS = {
   h: SIZE,
 }
 
+const D = DIMENSIONS
+export const getPath = (p: number) =>
+  `M${0},${p / 2}L${D.x - p},${D.y} 0,${D.x - p / 2} ${-D.x + p},${D.y}Z`
+export const TILE_PATH = getPath(0)
+export const INDICATOR_PATH = getPath(3)
+
 // The size of a sprite (padded around the block)
 export const SPRITE_SIZE = {
-  width: DIMENSIONS.w + PADDING * 2,
-  height: PADDING * 2 + DIMENSIONS.z * MAX_Z + DIMENSIONS.h,
+  width: D.w + PADDING * 2,
+  height: PADDING * 2 + D.z * MAX_Z + D.h,
   origin: {
-    x: PADDING + DIMENSIONS.x,
-    y: DIMENSIONS.z * MAX_Z + DIMENSIONS.y / 2,
+    x: PADDING + D.x,
+    y: D.z * MAX_Z + D.y / 2,
   },
 }
 
@@ -43,17 +49,17 @@ export const SPRITE_SIZE = {
 // export const isoToScreen = (point: number[]): number[] => {
 //   const [x, y, z] = point
 //   return [
-//     (x - y) * (DIMENSIONS.w / 2) + OFFSET[0],
-//     (x + y) * (DIMENSIONS.h / 2) - z * DIMENSIONS.z + OFFSET[1],
+//     (x - y) * (D.w / 2) + OFFSET[0],
+//     (x + y) * (D.h / 2) - z * D.z + OFFSET[1],
 //   ]
 // }
 
 // export const screenToIso = (point: number[]): number[] => {
 //   let [x, y, z = 0] = point
-//   x /= DIMENSIONS.w / 2
+//   x /= D.w / 2
 //   x /= 2
 //   y -= PADDING
-//   y /= DIMENSIONS.h / 2
+//   y /= D.h / 2
 //   y /= 2
 //   return [Math.floor(y + x), Math.floor(y - x), z]
 // }

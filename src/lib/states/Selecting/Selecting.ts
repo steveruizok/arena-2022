@@ -1,3 +1,4 @@
+import { transaction } from 'mobx'
 import { State } from '~lib/statechart/State'
 import { EventHandlers } from '~types'
 
@@ -7,9 +8,10 @@ export class Selecting extends State {
   onPointerDown: EventHandlers['pointer'] = (info) => {
     const { hoveredBlock } = this.app
     if (hoveredBlock?.canSelect) {
-      this.app.setSelectedBlocks([hoveredBlock])
-      // hoveredBlock.update({type: })
-      // hoveredBlock.move([0, 0, 1])
+      transaction(() => {
+        this.app.setSelectedBlocks([hoveredBlock])
+        this.app.transition('selectedCharacters')
+      })
     } else {
       this.app.setSelectedBlocks([])
     }

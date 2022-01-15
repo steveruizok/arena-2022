@@ -308,6 +308,13 @@
   resolved "https://registry.yarnpkg.com/@tldraw/vec/-/vec-1.4.3.tgz#c1460da019063b8eb9c62d715c61dff44dd23b02"
   integrity sha512-p7Nu9OWqorQ+nWPlvkN6Zn1oDbRgr4sheLzRif/+xB7BzMQFJh1T8syX6Jj/S88GPvn5PwZgYUKMnMFvvL5t/w==
 
+"@types/easystarjs@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@types/easystarjs/-/easystarjs-0.3.1.tgz#db1bcd69b91fa52c64ddebbc1215f31109f2b974"
+  integrity sha512-KmgyUkRLhZbkw3qGfMBigzDd3EYBGEL/Opr+gyan4PYoZprYP4MEgbq5w6P8fiLDkBLyHbp/37wHAKIw0kpfCw==
+  dependencies:
+    easystarjs "*"
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -427,6 +434,13 @@ debug@^4.1.0, debug@^4.1.1:
   integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
   dependencies:
     ms "2.1.2"
+
+easystarjs@*, easystarjs@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/easystarjs/-/easystarjs-0.4.4.tgz#8cec6d20d0d8660715da0301d1da440370a8f40a"
+  integrity sha512-ZSt0TkB8xuIXRIrKsM3jkmk1/cZUtyvf0DqOXf6wuKq9slx9UA5kkLtiaWhtmOQFJFKdabbvXwk6RO0znghArQ==
+  dependencies:
+    heap "0.2.6"
 
 electron-to-chromium@^1.4.17:
   version "1.4.38"
@@ -597,6 +611,11 @@ has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
+
+heap@0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/heap/-/heap-0.2.6.tgz#087e1f10b046932fc8594dd9e6d378afc9d1e5ac"
+  integrity sha1-CH4fELBGky/IWU3Z5tN4r8nR5aw=
 
 is-core-module@^2.8.0:
   version "2.8.1"

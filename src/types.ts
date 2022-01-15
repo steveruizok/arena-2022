@@ -3,8 +3,8 @@ import { Level } from '~lib/Level'
 import { Block } from './lib/Block'
 
 export interface GameState {
-  level: Level
   selectedIds: Set<string>
+  paths: number[][][]
 }
 
 export interface Bounds {

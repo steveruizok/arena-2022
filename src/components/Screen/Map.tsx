@@ -3,6 +3,7 @@ import { useApp } from '~hooks/useApp'
 import { Observer } from 'mobx-react-lite'
 import { useCameraCss } from '~hooks/useCameraCss'
 import { Vec3d } from '~utils/vec3d'
+import { PathIndicator } from './PathIndicator'
 
 export const Map = React.memo(function Map() {
   const app = useApp()
@@ -17,19 +18,58 @@ export const Map = React.memo(function Map() {
         <Observer>
           {() => (
             <g>
-              {app.state.level.blocksArray.map((block) => (
-                <block.Component
-                  key={block.id}
-                  isHovered={block === app.hoveredBlock}
-                  isSelected={app.state.selectedIds.has(block.props.id)}
-                />
-              ))}
-              {app.hoveredBlock && (
-                <app.hoveredBlock.Indicator isHovered={true} isSelected={false} />
-              )}
-              {app.selectedBlocks.map((block) => (
-                <block.Indicator key={block.id} isHovered={false} isSelected={true} />
-              ))}
+              {app.level.blocks.map((layer, z) => {
+                return (
+                  <React.Fragment key={z}>
+                    {layer.map((row) =>
+                      row.map(
+                        (block) =>
+                          block && (
+                            <g key={block.id}>
+                              <block.Component
+                                isHovered={block === app.hoveredBlock}
+                                isSelected={app.state.selectedIds.has(block.props.id)}
+                              />
+                              {app.selectedBlocks?.includes(block) && (
+                                <block.Indicator isHovered={false} isSelected={true} />
+                              )}
+                              {block === app.hoveredBlock && (
+                                <block.Indicator isHovered={true} isSelected={false} />
+                              )}
+                            </g>
+                          )
+                      )
+                    )}
+                    {z === 0 &&
+                      app.state.paths.map((path, i) =>
+                        path.map((point, j) => (
+                          <PathIndicator key={`${i}_${j}`} point={app.viewport.isoToWorld(point)} />
+                        ))
+                      )}
+                  </React.Fragment>
+                )
+              })}
+              <g opacity={0.2}>
+                {app.state.paths.map((path, i) =>
+                  path.map((point, j) => (
+                    <PathIndicator key={`${i}_${j}`} point={app.viewport.isoToWorld(point)} />
+                  ))
+                )}
+                {app.hoveredBlock && (
+                  <app.hoveredBlock.Indicator
+                    key={app.hoveredBlock.id + '_hover2'}
+                    isHovered={true}
+                    isSelected={false}
+                  />
+                )}
+                {app.selectedBlocks.map((block) => (
+                  <block.Indicator
+                    key={block.id + '_select2'}
+                    isHovered={false}
+                    isSelected={true}
+                  />
+                ))}
+              </g>
             </g>
           )}
         </Observer>

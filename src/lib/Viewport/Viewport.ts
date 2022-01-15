@@ -138,6 +138,10 @@ export class Viewport {
     return [(x - y) * (DIMENSIONS.w / 2), (x + y) * (DIMENSIONS.h / 2) - (z - 1) * DIMENSIONS.z]
   }
 
+  isoToWorld = (point: number[]): number[] => {
+    return this.isoToScreen(point)
+  }
+
   pinchCamera(point: number[], delta: number[], zoom: number) {
     const { camera } = this.app.viewport
     const nextPoint = Vec.sub(camera.point, Vec.div(delta, camera.zoom))

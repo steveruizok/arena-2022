@@ -6,12 +6,6 @@ export function useScreenEvents() {
 
   const events = React.useMemo(() => {
     function getPoint(e: React.PointerEvent) {
-      const {
-        viewport: {
-          camera: { zoom },
-          offset,
-        },
-      } = app
       return [e.clientX, e.clientY]
     }
 

@@ -1,4 +1,4 @@
-import { computed, makeObservable, observable } from 'mobx'
+import { action, computed, makeObservable, observable } from 'mobx'
 
 export abstract class BaseState {
   abstract id: string
@@ -13,6 +13,8 @@ export abstract class BaseState {
 
   @observable currentState?: BaseState
 
+  @action setCurrentState = (state: BaseState) => (this.currentState = state)
+
   prevState?: BaseState
 
   states = new Map<string, BaseState>()
@@ -23,15 +25,16 @@ export abstract class BaseState {
     if (this.currentState) {
       this.currentState.exit(payload)
     }
-    this.onEnter?.(payload)
+    this.onExit?.(payload)
   }
 
   enter = (payload?: any) => {
+    this.onEnter?.(payload)
     if (this.initial) {
       const next = this.states.get(this.initial)
       if (!next) throw Error(`No state found with id ${this.initial}`)
-      this.currentState = next
-      this.currentState.enter(payload)
+      this.setCurrentState(next)
+      this.currentState!.enter(payload)
     }
   }
 
@@ -58,12 +61,13 @@ export abstract class BaseState {
 
   transition(id: string) {
     const next = this.states.get(id)
-    if (!id) throw Error(`No state found with id ${id}`)
+    if (!next) throw Error(`No state found with id ${id}`)
     const prev = this.currentState
     if (prev) {
       this.prevState = prev
       prev.exit?.()
     }
+    this.setCurrentState(next)
     next?.enter()
   }
 

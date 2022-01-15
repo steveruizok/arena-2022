@@ -1,4 +1,5 @@
-import { action, makeObservable, observable } from 'mobx'
+import { action, computed, makeObservable, observable } from 'mobx'
+import { Vec3d } from '~utils/vec3d'
 import { App } from '..'
 import { EventHandlerTypes } from '../../types'
 
@@ -20,8 +21,10 @@ export class Inputs {
   @observable currentPoint = [0, 0]
   @observable currentScreenPoint = [0, 0]
   @observable currentIsoPoint = [0, 0, 0]
+  @observable currentIsoPosition = [0, 0, 0]
   @observable previousPoint = [0, 0]
   @observable previousIsoPoint = [0, 0]
+  @observable previousIsoPosition = [0, 0, 0]
   @observable previousScreenPoint = [0, 0]
   @observable originScreenPoint = [0, 0]
   @observable originPoint = [0, 0]
@@ -36,6 +39,8 @@ export class Inputs {
     this.currentPoint = this.app.viewport.screenToWorld(this.currentScreenPoint)
     this.previousIsoPoint = this.currentIsoPoint
     this.currentIsoPoint = this.app.viewport.screenToIso(this.currentScreenPoint)
+    this.previousIsoPosition = this.currentIsoPosition
+    this.currentIsoPosition = Vec3d.floor(this.currentIsoPoint)
   }
 
   private updateModifiers(

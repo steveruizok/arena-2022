@@ -16,7 +16,7 @@ export function useGestureEvents(ref: React.RefObject<HTMLElement>) {
   const events = React.useMemo<GestureEvents>(
     () => ({
       onWheel: ({ delta, event }) => {
-        app.send('onWheel', { delta, event })
+        app.send('onWheel', { delta, event, point: app.inputs.currentScreenPoint })
       },
       onPinch: ({ delta, offset, origin: point, event }) => {
         app.send('onPinch', { delta, offset, point, event })
