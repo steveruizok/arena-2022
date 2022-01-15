@@ -4,11 +4,7 @@ import { EventHandlers } from '~types'
 export class SelectedCharacters extends State {
   static id = 'selectedCharacters'
 
-  onExit = () => {
-    this.app.setPaths([])
-  }
-
-  onPointerMove: EventHandlers['pointer'] = async (info) => {
+  private async updatePathToHoveredBlock() {
     const { hoveredBlock, selectedBlocks } = this.app
     if (hoveredBlock) {
       const paths: number[][][] = []
@@ -21,6 +17,14 @@ export class SelectedCharacters extends State {
     } else if (this.app.state.paths) {
       this.app.setPaths([])
     }
+  }
+
+  onExit = () => {
+    this.app.setPaths([])
+  }
+
+  onPointerMove: EventHandlers['pointer'] = async (info) => {
+    this.updatePathToHoveredBlock()
   }
 
   animation?: Promise<boolean>

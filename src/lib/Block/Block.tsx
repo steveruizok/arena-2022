@@ -118,24 +118,23 @@ export class Block {
     }
   }
 
-  findAdjacent(point: number[]) {
-    const block = this.app.level.getBlockByPosition(Vec3d.add(this.props.position, point))
-    if (point[2] === 0 && block) return block.isoBounds['maxZ'] === this.isoBounds['maxZ']
-    return !!block
-  }
-
   @computed get adjacent(): AdjacentBlocks {
+    const findAdjacent = (point: number[]) => {
+      const block = this.app.level.getBlockByPosition(Vec3d.add(this.props.position, point))
+      if (point[2] === 0 && block) return block.isoBounds['maxZ'] === this.isoBounds['maxZ']
+      return !!block
+    }
     return {
-      north: this.findAdjacent([0, -1, 0]),
-      northEast: this.findAdjacent([1, -1, 0]),
-      east: this.findAdjacent([1, 0, 0]),
-      southEast: this.findAdjacent([1, 1, 0]),
-      south: this.findAdjacent([0, 1, 0]),
-      southWest: this.findAdjacent([-1, 1, 0]),
-      west: this.findAdjacent([-1, 0, 0]),
-      northWest: this.findAdjacent([-1, -1, 0]),
-      above: this.findAdjacent([0, 0, 1]),
-      below: this.findAdjacent([0, 0, -1]),
+      north: findAdjacent([0, -1, 0]),
+      northEast: findAdjacent([1, -1, 0]),
+      east: findAdjacent([1, 0, 0]),
+      southEast: findAdjacent([1, 1, 0]),
+      south: findAdjacent([0, 1, 0]),
+      southWest: findAdjacent([-1, 1, 0]),
+      west: findAdjacent([-1, 0, 0]),
+      northWest: findAdjacent([-1, -1, 0]),
+      above: findAdjacent([0, 0, 1]),
+      below: findAdjacent([0, 0, -1]),
     }
   }
 

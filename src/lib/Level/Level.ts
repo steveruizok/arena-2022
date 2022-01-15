@@ -5,7 +5,7 @@ import { DirtTile } from './terrain/DirtTile'
 import { StoneTile } from './terrain/StoneTile'
 import { GrassTile } from './terrain/GrassTile'
 import { WaterTile } from './terrain/WaterTile'
-import { observable, transaction } from 'mobx'
+import { action, observable, transaction } from 'mobx'
 import { App } from '~lib'
 import { Vec3d } from '~utils/vec3d'
 import { Hero } from './characters/Hero'
@@ -104,11 +104,12 @@ export class Level {
             let t = (performance.now() - timeStart) / duration
             if (t > 0.5 && !stepped) {
               stepped = true
-              this.app.setPaths([steps])
+              this.app.updatePointer()
             }
             if (t > 1) t = 1
             block.update({ offset: Vec3d.lrp(offset, initialOffset, t) })
             if (t >= 1) {
+              this.app.updatePointer()
               setTimeout(() => resolve(), 50)
               return
             }
@@ -127,8 +128,8 @@ export class Level {
     const { easy } = this
     this.easy.setAcceptableTiles([1])
     this.easy.setGrid(
-      this.blocks[0].map((row) =>
-        row.map((block) => (block?.canWalk && !block.adjacent.above ? 1 : 0))
+      this.blocks[0].map((row, y) =>
+        row.map((block, x) => (block?.canWalk && !this.blocks[1][y][x] ? 1 : 0))
       )
     )
     easy.cancelPath(this.currentPath)

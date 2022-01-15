@@ -1,5 +1,5 @@
 import { action, computed, makeObservable, observable } from 'mobx'
-import { EventHandlers, GameState } from '../types'
+import { EventHandlerInfo, EventHandlers, EventHandlerTypes, GameState } from '../types'
 import { Inputs } from './Inputs'
 import { Viewport } from './Viewport'
 import { Level } from './Level'
@@ -73,6 +73,17 @@ export class App extends BaseState {
 
   /* --------------------- Events --------------------- */
 
+  prevPointerMoveInfo?: EventHandlerInfo & {
+    point: number[]
+    event: EventHandlerTypes['pointer'] | EventHandlerTypes['wheel']
+  }
+
+  updatePointer = () => {
+    if (this.prevPointerMoveInfo) {
+      this.send('onPointerMove', this.prevPointerMoveInfo)
+    }
+  }
+
   readonly onWheel: EventHandlers['wheel'] = (info) => {
     if (this.isPinching) return
     this.viewport.panCamera(info.delta)
@@ -93,6 +104,7 @@ export class App extends BaseState {
   }
 
   readonly onPointerMove: EventHandlers['pointer'] = (info) => {
+    this.prevPointerMoveInfo = info
     if ('clientX' in info.event) {
       this.inputs.onPointerMove(info.point, info.event)
     }
