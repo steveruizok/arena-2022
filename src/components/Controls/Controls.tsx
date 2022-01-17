@@ -9,12 +9,11 @@ export const Controls = observer(function Controls() {
 World Point: [${app.inputs.currentPoint.map((p) => Math.floor(p)).join(', ')}] 
 Iso Point: [${app.inputs.currentIsoPoint.map((p) => p.toFixed(2))}]
 Iso Position: [${app.inputs.currentIsoPosition}]
+Hovered Block: ${app.hoveredBlock?.id}
+Selected Blocks: ${app.selectedBlocks?.length}
 `}</pre>
     </div>
   )
 })
 
 // Hovered Adjacent: ${JSON.stringify(game.hoveredBlock?.adjacent, null, 2)}
-// Current State:${game.currentPath}
-// Hovered Block: ${game.hoveredBlock?.id}
-// Selected Blocks: ${game.selectedBlocks?.length}
