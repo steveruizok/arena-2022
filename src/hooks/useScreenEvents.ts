@@ -10,15 +10,15 @@ export function useScreenEvents() {
     }
 
     const onPointerMove: React.PointerEventHandler<HTMLDivElement> = (e) => {
-      app.send('onPointerMove', { block: null, point: getPoint(e), event: e })
+      app.send('onPointerMove', { point: getPoint(e), event: e })
     }
 
     const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
-      app.send('onPointerDown', { block: null, point: getPoint(e), event: e })
+      app.send('onPointerDown', { point: getPoint(e), event: e })
     }
 
     const onPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
-      app.send('onPointerUp', { block: null, point: getPoint(e), event: e })
+      app.send('onPointerUp', { point: getPoint(e), event: e })
     }
 
     return {

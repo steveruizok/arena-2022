@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite'
-import * as React from 'react'
 import { useApp } from '~hooks/useApp'
 
 export const Controls = observer(function Controls() {
@@ -10,12 +9,12 @@ export const Controls = observer(function Controls() {
 World Point: [${app.inputs.currentPoint.map((p) => Math.floor(p)).join(', ')}] 
 Iso Point: [${app.inputs.currentIsoPoint.map((p) => p.toFixed(2))}]
 Iso Position: [${app.inputs.currentIsoPosition}]
-Current State:${app.currentPath}
-Hovered Block: ${app.hoveredBlock?.id}
-Selected Blocks: ${app.selectedBlocks?.length}
 `}</pre>
     </div>
   )
 })
 
-// Hovered Adjacent: ${JSON.stringify(app.hoveredBlock?.adjacent, null, 2)}
+// Hovered Adjacent: ${JSON.stringify(game.hoveredBlock?.adjacent, null, 2)}
+// Current State:${game.currentPath}
+// Hovered Block: ${game.hoveredBlock?.id}
+// Selected Blocks: ${game.selectedBlocks?.length}

@@ -1,4 +1,6 @@
-import { Verts } from '~types'
+import Vec from '@tldraw/vec'
+import { Bounds3d, Verts } from '~types'
+import { Vec3d } from './vec3d'
 
 export const SIZE = 32
 export const MAX_Z = 2
@@ -41,25 +43,90 @@ export const SPRITE_SIZE = {
   },
 }
 
-// export const spaceToSprite = (point: number[]): number[] => {
-//   const screenPoint = spaceToScreen(point)
-//   return [screenPoint[0] + spriteSize.origin.x, screenPoint[0] + spriteSize.origin.y]
-// }
+export function getIsoBounds(position: number[], offset: number[], size: number[]): Bounds3d {
+  const [px, py, pz] = Vec3d.add(position, offset)
+  const [x, y, z] = size
+  return {
+    minX: px,
+    midX: px + x / 2,
+    maxX: px + x,
+    minY: py,
+    midY: py + y / 2,
+    maxY: py + y,
+    minZ: pz,
+    midZ: pz + z / 2,
+    maxZ: pz + z,
+    width: x,
+    height: y,
+    depth: z,
+  }
+}
 
-// export const isoToScreen = (point: number[]): number[] => {
-//   const [x, y, z] = point
-//   return [
-//     (x - y) * (D.w / 2) + OFFSET[0],
-//     (x + y) * (D.h / 2) - z * D.z + OFFSET[1],
-//   ]
-// }
+export function getIsoVerts({ minX, midX, maxX, minY, midY, maxY, minZ, maxZ }: Bounds3d): Verts {
+  return {
+    centerDown: [midX, midY, minZ],
+    backDown: [minX, minY, minZ],
+    backUp: [minX, minY, maxZ],
+    rightDown: [maxX, minY, minZ],
+    frontDown: [maxX, maxY, minZ],
+    leftDown: [minX, maxY, minZ],
+    centerUp: [midX, midY, maxZ],
+    rightUp: [maxX, minY, maxZ],
+    frontUp: [maxX, maxY, maxZ],
+    leftUp: [minX, maxY, maxZ],
+  }
+}
 
-// export const screenToIso = (point: number[]): number[] => {
-//   let [x, y, z = 0] = point
-//   x /= D.w / 2
-//   x /= 2
-//   y -= PADDING
-//   y /= D.h / 2
-//   y /= 2
-//   return [Math.floor(y + x), Math.floor(y - x), z]
-// }
+export function isoToScreen(point: number[]): number[] {
+  const [x, y, z] = point
+  return [(x - y) * (DIMENSIONS.w / 2), (x + y) * (DIMENSIONS.h / 2) - (z - 1) * DIMENSIONS.z]
+}
+
+export function getScreenVerts(isoVerts: Verts) {
+  return Object.entries(isoVerts).reduce(
+    (acc, [key, value]) => Object.assign(acc, { [key]: isoToScreen(value) }),
+    {} as Verts
+  )
+}
+
+export function getScreenOutline(verts: Verts) {
+  return [
+    verts.leftUp,
+    verts.backUp,
+    verts.rightUp,
+    verts.rightDown,
+    verts.frontDown,
+    verts.leftDown,
+  ]
+}
+
+export function getTopPath(padding = 0) {
+  const h = Math.hypot(padding, padding)
+  const backUp = Vec.add(DEFAULT_VERTS.backUp, [0, h])
+  const rightUp = Vec.add(DEFAULT_VERTS.rightUp, [-h * 2, 0])
+  const leftUp = Vec.add(DEFAULT_VERTS.leftUp, [h * 2, 0])
+  const frontUp = Vec.add(DEFAULT_VERTS.frontUp, [0, -h])
+  return `M${leftUp} L ${backUp} ${rightUp} ${frontUp}Z`
+}
+
+export function getBlockVerts(position: number[], offset: number[], size: number[], padding = 0) {
+  const isoBounds = getIsoBounds(position, offset, size)
+  const isoVerts = getIsoVerts(isoBounds)
+  return getScreenVerts(isoVerts)
+}
+
+export function getBlockPaths(verts: Verts) {
+  const { leftUp, backUp, rightUp, rightDown, frontUp, frontDown, backDown, leftDown } = verts
+  return {
+    top: `M${leftUp} L ${backUp} ${rightUp} ${frontUp}Z`,
+    bottom: `M${backDown} L ${rightDown} ${frontDown} ${leftDown}Z`,
+    north: `M${backUp} L ${rightUp} ${rightDown} ${backDown}Z`,
+    east: `M${rightUp} L ${rightDown} ${frontDown} ${frontUp}Z`,
+    south: `M${frontUp} L ${frontDown} ${leftDown} ${leftUp}Z`,
+    west: `M${backUp} L ${backDown} ${leftDown} ${leftUp}Z`,
+    outline: `M${leftUp} L${backUp} ${rightUp} ${rightDown} ${frontDown} ${leftDown}Z`,
+  }
+}
+
+export const DEFAULT_VERTS = getBlockVerts([0, 0, 0], [0, 0, 0], [1, 1, 1])
+export const DEFAULT_PATHS = getBlockPaths(DEFAULT_VERTS)

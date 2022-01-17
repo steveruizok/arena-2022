@@ -1,6 +1,5 @@
 import { autorun } from 'mobx'
 import React from 'react'
-import { DIMENSIONS } from '~utils/iso'
 import { useApp } from './useApp'
 
 export function useCameraCss<T extends HTMLElement | SVGElement>(ref: React.RefObject<T>) {
@@ -9,19 +8,18 @@ export function useCameraCss<T extends HTMLElement | SVGElement>(ref: React.RefO
     autorun(() => {
       const {
         offset,
-        bounds,
         camera: {
-          zoom,
-          point: [x, y],
+          point: [cx, cy],
+          zoom: cz,
         },
       } = app.viewport
       const elm = ref.current
       if (!elm) return
       elm.style.setProperty(
         'transform',
-        `scale(${zoom}) 
-         translate(${x + offset[0]}px, ${y + offset[1]}px)`
+        `scale(${cz}) 
+         translate(${cx + offset[0]}px, ${cy + offset[1]}px)`
       )
     })
-  }, [ref])
+  }, [app, ref])
 }

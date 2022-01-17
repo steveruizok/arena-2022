@@ -56,38 +56,35 @@ export type EventHandlerTypes = {
   touch: TouchEvent | React.TouchEvent
   keyboard: KeyboardEvent | React.KeyboardEvent
   gesture: WebKitGestureEvent
-  wheel: Handler<'wheel', WheelEvent>
-  pinch: Handler<'pinch', PointerEvent | TouchEvent | WheelEvent | WebKitGestureEvent> | undefined
+  wheel: WheelEvent
+  pinch: PointerEvent | WebKitGestureEvent | WheelEvent | TouchEvent
 }
-
-export interface BlockEventHandlerInfo {
-  block: Block
-}
-
-export type EventHandlerInfo = BlockEventHandlerInfo // | others...
 
 export type EventHandlers = {
-  wheel: (
-    info: EventHandlerInfo & { delta: number[]; point: number[]; event: EventHandlerTypes['wheel'] }
-  ) => void
-  pinch: (
-    info: EventHandlerInfo & {
-      delta: number[]
-      point: number[]
-      offset: number[]
-      event:
-        | EventHandlerTypes['wheel']
-        | EventHandlerTypes['pointer']
-        | EventHandlerTypes['touch']
-        | EventHandlerTypes['keyboard']
-        | EventHandlerTypes['gesture']
-    }
-  ) => void
-  pointer: (
-    info: EventHandlerInfo & {
-      point: number[]
-      event: EventHandlerTypes['pointer'] | EventHandlerTypes['wheel']
-    }
-  ) => void
-  keyboard: (info: EventHandlerInfo & { event: EventHandlerTypes['keyboard'] }) => void
+  wheel: (info: { delta: number[]; point: number[]; event: EventHandlerTypes['wheel'] }) => void
+  pinch: (info: {
+    delta: number[]
+    point: number[]
+    offset: number[]
+    event: EventHandlerTypes['pinch']
+  }) => void
+  pointer: (info: {
+    point: number[]
+    event: EventHandlerTypes['pointer'] | EventHandlerTypes['wheel']
+  }) => void
+  keyboard: (info: { event: EventHandlerTypes['keyboard'] }) => void
+}
+
+export interface StateEvents {
+  onEnter: () => void
+  onExit: () => void
+  onWheel: EventHandlers['wheel']
+  onPointerDown: EventHandlers['pointer']
+  onPointerUp: EventHandlers['pointer']
+  onPointerMove: EventHandlers['pointer']
+  onKeyDown: EventHandlers['keyboard']
+  onKeyUp: EventHandlers['keyboard']
+  onPinchStart: EventHandlers['pinch']
+  onPinch: EventHandlers['pinch']
+  onPinchEnd: EventHandlers['pinch']
 }

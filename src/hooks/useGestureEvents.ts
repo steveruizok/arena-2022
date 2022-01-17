@@ -1,13 +1,14 @@
 import React from 'react'
-import { useGesture } from '@use-gesture/react'
-import { useApp } from './useApp'
+import { Handler, useGesture, WebKitGestureEvent } from '@use-gesture/react'
+import { useGame } from './useGame'
 import { EventHandlerTypes } from '~types'
+import { useApp } from './useApp'
 
 type GestureEvents = {
-  onWheel: EventHandlerTypes['wheel']
-  onPinchStart: EventHandlerTypes['pinch']
-  onPinch: EventHandlerTypes['pinch']
-  onPinchEnd: EventHandlerTypes['pinch']
+  onWheel: Handler<'wheel', WheelEvent>
+  onPinchStart: Handler<'pinch', PointerEvent | TouchEvent | WheelEvent | WebKitGestureEvent>
+  onPinch: Handler<'pinch', PointerEvent | TouchEvent | WheelEvent | WebKitGestureEvent>
+  onPinchEnd: Handler<'pinch', PointerEvent | TouchEvent | WheelEvent | WebKitGestureEvent>
 }
 
 export function useGestureEvents(ref: React.RefObject<HTMLElement>) {
@@ -16,7 +17,7 @@ export function useGestureEvents(ref: React.RefObject<HTMLElement>) {
   const events = React.useMemo<GestureEvents>(
     () => ({
       onWheel: ({ delta, event }) => {
-        app.send('onWheel', { delta, event, point: app.inputs.currentScreenPoint })
+        app.send('onWheel', { delta, point: app.inputs.currentScreenPoint, event })
       },
       onPinch: ({ delta, offset, origin: point, event }) => {
         app.send('onPinch', { delta, offset, point, event })
@@ -28,7 +29,7 @@ export function useGestureEvents(ref: React.RefObject<HTMLElement>) {
         app.send('onPinchEnd', { delta, offset, point, event })
       },
     }),
-    []
+    [app]
   )
 
   useGesture(events, {

@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { useApp } from './useApp'
 import { Bounds } from '~types'
+import { useApp } from './useApp'
 
 export function useResizeObserver<T extends Element>(
   ref: React.RefObject<T>,
@@ -34,7 +34,7 @@ export function useResizeObserver<T extends Element>(
       // Skip the first mount
       rIsMounted.current = true
     }
-  }, [ref, onBoundsChange])
+  }, [app, ref, onBoundsChange])
 
   React.useEffect(() => {
     window.addEventListener('scroll', updateBounds)
