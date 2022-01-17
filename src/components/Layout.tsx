@@ -1,11 +1,11 @@
-import { useGame } from '~hooks/useGame'
+import { useApp } from '~hooks/useApp'
 import { Controls } from './Controls'
 import { Screen } from './Screen'
 
 export function Layout() {
-  const game = useGame()
+  const app = useApp()
 
-  if (!game) return null
+  if (!app) return null
 
   return (
     <div className="layout">

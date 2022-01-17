@@ -1,7 +1,5 @@
 import React from 'react'
 import { Handler, useGesture, WebKitGestureEvent } from '@use-gesture/react'
-import { useGame } from './useGame'
-import { EventHandlerTypes } from '~types'
 import { useApp } from './useApp'
 
 type GestureEvents = {
