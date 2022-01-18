@@ -1,7 +1,7 @@
+import Vec from '@tldraw/vec'
 import { action, computed, makeObservable, observable } from 'mobx'
 import { App } from '../App'
 import { Bounds, Camera } from '../../types'
-import Vec from '@tldraw/vec'
 import { FIT_TO_SCREEN_PADDING } from '../../constants'
 import { DIMENSIONS, PADDING } from '../../utils/iso'
 
